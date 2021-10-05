@@ -1,9 +1,10 @@
-//#include <Arduino.h>
+#include <Servo.h>
 
-
-#include<Servo.h>
+#define PrintLog Serial.println
 
 const int sleepSeconds = 10;
+const bool showlog = true;
+const bool usedeepsleep =true;
 
 Servo servoT; // Up/Down Motor - (4)D2 Pin
 int angleservoT = 90;
@@ -30,7 +31,10 @@ int adcread(int pin)
 void setup()
 {
   // servo connections
-  Serial.begin(115200);
+  if (showlog) 
+       {
+         Serial.begin(115200);
+       }
   servoT.attach(4);
   servoB.attach(5);
   pinMode(ldrTL,OUTPUT);
@@ -42,7 +46,10 @@ void setup()
 
 void loop()
 {
-  Serial.println("Start void loop()");
+  if (showlog)
+       {
+         PrintLog("Start void loop()");
+       }
   int TR= adcread(ldrTR);  // Top-right
   int TL= adcread(ldrTL);  // Top-left
   int BL= adcread(ldrBL);  // Bottom-right
@@ -93,13 +100,14 @@ void loop()
     }
     servoB.write(angleservoB);
    }
-   
-  Serial.println("Going to DeepSlep for:");
-  Serial.println(sleepSeconds);
-  Serial.println("seconds");
-  ESP.deepSleep(sleepSeconds * 1000000);
-  delay(5000);
-  Serial.println("!Wake UP!");
-
-
+  if (showlog)
+       {
+         PrintLog("Going to DeepSlep for:");
+         PrintLog(sleepSeconds);
+         PrintLog("seconds");
+       }
+  if (usedeepsleep)
+     {
+       ESP.deepSleep(sleepSeconds * 1000000);
+     }
 }
