@@ -4,13 +4,15 @@
 
 const int sleepSeconds = 10;
 const bool showlog = true;
-const bool usedeepsleep =true;
+const bool usedeepsleep = false;
 
-Servo servoT; // Up/Down Motor - (4)D2 Pin
+Servo servoT; // Up/Down Motor
 int angleservoT = 90;
+const int servoTpin = 4; //(4)D2 Pin
 
-Servo servoB; // Left/Right Motor -(5)D1 Pin
+Servo servoB; // Left/Right Motor
 int angleservoB = 90;
+const int servoBpin = 5; //(5)D1 Pin
 
 // LDR pin connections
 // name = analogpin;
@@ -31,12 +33,12 @@ int adcread(int pin)
 void setup()
 {
   // servo connections
-  if (showlog) 
+  if (showlog)
        {
          Serial.begin(115200);
        }
-  servoT.attach(4);
-  servoB.attach(5);
+  servoT.attach(servoTpin);
+  servoB.attach(servoBpin);
   pinMode(ldrTL,OUTPUT);
   pinMode(ldrTR,OUTPUT);
   pinMode(ldrBL,OUTPUT);
