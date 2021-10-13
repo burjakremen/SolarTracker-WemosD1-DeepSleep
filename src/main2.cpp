@@ -10,10 +10,13 @@ const int  maxVangle = 180; //maximum vertical position
 const int  minVangle = 0; //minimum verticsl position
 const int  maxHangle = 180; //maximum horizontal position
 const int  minHangle = 0; //minimum horizontal position
-bool       cansleepV = false;
-bool       cansleepH = false;
+const int  startHangle = 90;
+const int  startVangle = 90;
 int dtime = 1; // delay time
 int tol = 30;  // tolerance
+
+bool       cansleepV = false;
+bool       cansleepH = false;
 
 //Define ESP pin`s
 const int servovpin = 4; //(4)D2 Pin - Vertical Motor
@@ -26,19 +29,19 @@ int ldrBR = 15; //Pin D8 - ldr down rigt - Нижний правый
 
 //Define servos
 Servo horizontal; // horizontal servo
-int servoh = 90; // initial horizontal position;
-Servo vertical; // vertical servo 
-int servov = 90; // initial vertical position;
+int servoh; // initial horizontal position;
+Servo vertical; // vertical servo
+int servov; // initial vertical position;
 
 int adcread(int pin)
 {
    digitalWrite(pin,1);
    int value = analogRead(A0);
-   if showlog
+   if (showlog)
      {
-         PrintLog ("Work ESP PIN:")
-		 PrintLog (pin);
-		 PrintLog ("ADC Value:");
+         PrintLog ("Work ESP PIN:");
+		     PrintLog (pin);
+		     PrintLog ("ADC Value:");
          PrintLog (value);
      };
    digitalWrite (pin,0);
@@ -59,10 +62,10 @@ void setup()
   pinMode(ldrBL,OUTPUT);
   pinMode(ldrBR,OUTPUT);
   pinMode(D0, WAKEUP_PULLUP);
-  if (!useinitposition)
+  if (useinitposition)
      {
-		 vertical.read(servov);
-		 horizontal.read(servoh);
+		   servov = startVangle;
+		   servoh = startHangle;
      };
 }
 
@@ -72,30 +75,30 @@ void loop()
        {
          PrintLog("Start void loop()");
        };
-  int rt= adcread(ldrTR);  // Top-right
-  if showlog
+  int rt = adcread(ldrTR);  // Top-right
+  if (showlog)
      {
-         PrintLog ("Top Right Value:");
-		 PrintLog (rt);
-	 };
-  int lt= adcread(ldrTL);  // Top-left
-  if showlog
+       PrintLog ("Top Right Value:");
+		   PrintLog (rt);
+	   };
+  int lt = adcread(ldrTL);  // Top-left
+  if (showlog)
      {
-         PrintLog ("Top Left Value:");
-		 PrintLog (lt);
-	 };
-  int ld= adcread(ldrBL);  // Bottom-left
-  if showlog
+       PrintLog ("Top Left Value:");
+		   PrintLog (lt);
+	   };
+  int ld = adcread(ldrBL);  // Bottom-left
+  if (showlog)
      {
-         PrintLog ("Bottom Left Value:");
-		 PrintLog (ld);
-	 };
-  int rd= adcread(ldrBR);  // Bottom-right
-  if showlog
+       PrintLog ("Bottom Left Value:");
+		   PrintLog (ld);
+	   };
+  int rd = adcread(ldrBR);  // Bottom-right
+  if (showlog)
      {
-         PrintLog ("Bottom right Value:");
-		 PrintLog (rd);
-	 };
+       PrintLog ("Bottom right Value:");
+		   PrintLog (rd);
+	   };
 
 
  int avt = (lt + rt) / 2; // average value top
@@ -107,83 +110,90 @@ void loop()
  int dhoriz = avl - avr;// check the diffirence og left and rigt
 
  if (-1*tol > dvert || dvert > tol) // check if the diffirence is in the tolerance else change vertical angle
-    {
- 	cansleepV = false;
-     if (avt > avd)
+     {
+ 	     cansleepV = false;
+       if (avt > avd)
           {
-              servov = ++servov;
-              if (servov > maxVangle)
-              {
-                  servov = maxVangle;
-              };
-          };
-     else if (avt < avd)
+             servov = ++servov;
+             if (servov > maxVangle)
+               {
+                 servov = maxVangle;
+               };
+          }
+       else if (avt < avd)
           {
-              servov= --servov;
-              if (servov < minVangle)
-              {
-                  servov = minVangle;
-              };
+             servov= --servov;
+             if (servov < minVangle)
+               {
+                 servov = minVangle;
+               };
           };
-     if showlog
-          {
-              PrintLog ("Moving vertical value:");
-	 	     PrintLog (servov);
-	      };
- 	if (vertical.attached())
- 	      {
-              vertical.write(servov);
-          };
-    else {cansleepV = true;};
+       if (showlog)
+           {
+             PrintLog ("Moving vertical value:");
+	 	         PrintLog (servov);
+	         };
+ 	     if (vertical.attached())
+ 	         {
+             vertical.write(servov);
+           }
+     }
+ else
+     {
+       cansleepV = true;
+     }
+
 
  if (-1*tol > dhoriz || dhoriz > tol) // check if the diffirence is in the tolerance else change horizontal angle
     {
-	 cansleepH = false;
-     if (avl > avr)
-          {
-              servoh = --servoh;
-              if (servoh < minHangle)
-                  {
-                      servoh = minHangle;
-                  };
-          };
-     else if (avl < avr)
-          {
-              servoh = ++servoh;
-              if (servoh > maxHangle)
-                  {
-                      servoh = maxHangle;
-                  };
-          };
-     if showlog
-          {
-              PrintLog ("Moving horizontal value:");
-	  	        PrintLog (servoh);
-	       };
-     if (horizontal.attached())
- 	      {
-              horizontal.write(servoh);
-		   };
+	     cansleepH = false;
+         if (avl > avr)
+            {
+               servoh = --servoh;
+               if (servoh < minHangle)
+                   {
+                       servoh = minHangle;
+                   };
+            }
+         else if (avl < avr)
+            {
+               servoh = ++servoh;
+               if (servoh > maxHangle)
+                   {
+                       servoh = maxHangle;
+                   };
+            };
+       if (showlog)
+           {
+             PrintLog ("Moving horizontal value:");
+	  	       PrintLog (servoh);
+	         };
+       if (horizontal.attached())
+ 	         {
+             horizontal.write(servoh);
+		       }
     }
-    else {cansleeph = true;};
+ else
+    {
+       cansleepH = true;
+    }
 
- delay(dtime);
+ delay (dtime);
 
- if (cansleeph && cansleepV)
-      {
-          if showlog
-              {
-                  PrintLog ("Destination position reached");
-	           };        
-		  if (usedeepsleep)
+ if (cansleepH && cansleepV)
+    {
+       if (showlog)
+         {
+             PrintLog ("Destination position reached");
+	       };
+		   if (usedeepsleep)
 	 	      {
-				  if showlog
-                      {
-                          PrintLog ("Deepsleep seconds:");
-		                    PrintLog (sleepSeconds);
-	                   }; 
-
- 	           ESP.deepSleep(sleepSeconds * 1000000);
-		       };
-       };
+			       if (showlog)
+               {
+                   PrintLog ("Deepsleep seconds:");
+		               PrintLog (deepsleepSeconds);
+	             };
+             ESP.deepSleep(deepsleepSeconds * 1000000);
+          };
+    };
 }
